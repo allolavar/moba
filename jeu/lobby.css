@@ -257,7 +257,7 @@
 }
 .tv-art-stage {
   width:100%;
-  height:clamp(230px,40svh,425px);
+  height:clamp(222px,34svh,380px);
   position:relative;
   margin-top:-15px;
   display:flex;
@@ -524,7 +524,7 @@
  .tv-lobby-header{grid-template-columns:minmax(180px,1fr) minmax(200px,1.2fr) auto;grid-template-areas:"player coins options";}
  .tv-lobby-coins .cur{padding:8px 10px;font-size:15px;}
  .tv-lobby-brand img{width:min(80%,370px);}
- .tv-art-stage{height:min(43svh,475px);}
+ .tv-art-stage{height:min(42svh,465px);}
  .tv-lobby-progress{margin-top:-10px;}
 }
 @media (max-height:740px){
