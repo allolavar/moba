@@ -1,7 +1,3 @@
-<!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07121a">
 <title>Trois Voies</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -228,6 +224,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 
 /* ---------- coque mobile : bandeau haut + barre du bas ---------- */
+.advl{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px;margin-bottom:18px}
+.frame.adv{display:flex;align-items:center;gap:12px;padding:12px 14px}.frame.adv>div{flex:1;min-width:0;display:flex;flex-direction:column}.frame.adv small{color:var(--mut);font-size:12.5px}.frame.adv .ok{color:#9be38a;font-weight:800}
 .backbar{display:flex;align-items:center;gap:8px;margin:0 0 12px}
 .backbtn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px 8px 10px;border-radius:999px;border:1px solid var(--line2);background:rgba(10,14,12,.85);color:#f3ead6;font-family:inherit;font-weight:700;font-size:14px;line-height:1;cursor:pointer;box-shadow:0 6px 16px -8px #000}
 .backbtn:hover{border-color:var(--gold)}.backbtn svg{width:18px;height:18px}
@@ -516,7 +514,6 @@ button.hcard:hover{border-color:var(--rc)}
 #tabs button{flex:1 0 auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
-<link rel="stylesheet" href="visual-refresh.css?v=2">
 
 <canvas id="menuBg" aria-hidden="true"></canvas>
 <section id="meta" class="screen"></section>
@@ -1362,6 +1359,7 @@ const SCREENS=[
  {id:'heroes',name:'Invocation des héros',desc:'Débloque les héros : sans cela, impossible d’en emmener ou d’en invoquer en bataille.',price:200},
  {id:'fortress',name:'Forteresse',desc:'Fais évoluer tes tours, bastions et Nexus.',price:0},
  {id:'talents',name:'Talents',desc:'Quatre arbres d’orientation permanents.',price:200},
+ {id:'avance',name:'Paramètres avancés',desc:'Ordres des héros, améliorations des unités, arts de compétence.',price:0},
  {id:'controls',name:'Commandes',desc:'Raccourcis clavier et réglages.',price:40},
  {id:'codex',name:'Codex',desc:'Tout le catalogue : 120 héros, 300 lignées, leurs compétences et leurs ères.',price:30},
 ];
@@ -1394,6 +1392,13 @@ const worldOpen=i=>i===0||!!(meta.prog[WORLDS[i-1].id]||{}).normal;
 function priceOf(k){
   if(k.startsWith('combo:'))return k.slice(6).split('+').reduce((a,x)=>a+(meta&&meta.unl[x]?0:priceOf(x)),0);
   const [t,a,b]=k.split(':');
+  /* Une page débloquée ouvre tout son contenu (onglets, sous-parties, missions) */
+  const pg=x=>!!(meta&&meta.unl&&meta.unl['page:'+x]);
+  if(t==='scr'&&SCR2PAGE[a]&&pg(SCR2PAGE[a]))return 0;
+  if(t==='scr'&&a==='controls'&&pg('settings'))return 0;
+  if(t==='mis'&&pg('missions'))return 0;
+  if(t==='sub'){const P={col:'army',hero:'army',codex:'army',boost:'market',fort:'fort',tal:'fort'}[a];if(P&&pg(P))return 0}
+  if(k==='hud:chest')return 0;
   if(t==='scr')return(SCREENS.find(s=>s.id===a)||{price:0}).price;
   if(k==='tab:heroes')return priceOf('scr:heroes');
   if(t==='tab')return(ALLTABS.find(s=>s.id===a)||{price:0}).price;
@@ -1490,11 +1495,15 @@ function buyFaction(f){
 }
 let FORCE=null;
 function withForce(keys,fn){const prev=FORCE;FORCE=new Set([...(prev||[]),...keys]);try{return fn()}finally{FORCE=prev}}
-function isUnl(k){if(priceOf(k)===0)return true;
+/* Onglets de bataille : jamais achetés en partie, ils découlent de ce qui est débloqué hors partie */
+const TAB_REQ={bastions:()=>true,champ:()=>true,send:()=>true,heroes:()=>isUnl('scr:heroes'),forge:()=>isUnl('scr:heroes'),books:()=>isUnl('scr:heroes'),
+  defenses:()=>isUnl('page:fort'),chaos:()=>isUnl('page:fort'),spells:()=>!!(meta&&meta.unl['voie:arcanes'])};
+function isUnl(k){if(k.startsWith('tab:')&&TAB_REQ[k.slice(4)]){if(G&&!G.over&&G.mode==='champ'&&typeof $==='function'&&$('game')&&!$('game').hidden)return true;return!!(meta&&TAB_REQ[k.slice(4)]())}
+  if(priceOf(k)===0)return true;
   /* modes à héros (Champions, Siège) : une fois le mode débloqué, tout ce qui sert en partie est disponible */
   if(G&&!G.over&&G.mode==='champ'&&/^(tab:|ord:|bst:|art:)/.test(k)&&typeof $==='function'&&$('game')&&!$('game').hidden)return true;if(!meta)return false;if(FORCE&&FORCE.has(k))return true;if(k==='tab:heroes'||k==='scr:heroes')return!!(meta.unl['scr:heroes']||meta.unl['tab:heroes']);return!!meta.unl[k]}
 const adsFor=k=>Math.max(1,Math.ceil(priceOf(k)/100));
-function setUnl(k){if(k.startsWith('combo:')){for(const x of k.slice(6).split('+'))setUnl(x);return}meta.unl[k]=true;if(k==='tab:heroes')meta.unl['scr:heroes']=true;if(k==='scr:heroes')meta.unl['tab:heroes']=true}
+function setUnl(k){if(k.startsWith('combo:')){for(const x of k.slice(6).split('+'))setUnl(x);return}meta.unl[k]=true;if(k.startsWith('page:')){const pgid=k.slice(5);for(const t in SCR2PAGE)if(SCR2PAGE[t]===pgid)meta.unl['scr:'+t]=true;if(pgid==='army')meta.unl['tab:heroes']=true}if(k==='tab:heroes')meta.unl['scr:heroes']=true;if(k==='scr:heroes')meta.unl['tab:heroes']=true}
 function tryUnlock(k,label,after){
   const p=priceOf(k),n=adsFor(k);meta.ads=meta.ads||{};const seen=meta.ads[k]||0;
   const done=()=>{setUnl(k);saveMeta();toast('Débloqué');after&&after()};
@@ -1658,30 +1667,9 @@ function getMap(v){
    STRUCTURES : DESSIN
    ========================================================= */
 const TOWER_MAT=[{w:'#6a4a2a',d:'#4a321c',t:'#7a5a34'},{w:'#6d7276',d:'#565b5f',t:'#80858a'},{w:'#7a7e82',d:'#5e6266',t:'#90949a'},{w:'#4e5a6a',d:'#3a4452',t:'#6a7686'},{w:'#5a4a7a',d:'#42365c',t:'#7a68a0'},{w:'#e8e2d0',d:'#c8bfa8',t:'#f2ecdc'}];
-/* Grounded architectural plinths: an understated magical signature for each team. */
-function drawArcanePlinth(c,r,col,t,tier){
-  c.save();
-  c.fillStyle='rgba(5,12,20,.35)';E(c,0,4,r+5,(r+5)*.43);c.fill();
-  c.fillStyle='#263541';E(c,0,1,r+3,(r+3)*.39);c.fill();
-  c.fillStyle='#53626a';E(c,0,-.8,r+1,(r+1)*.34);c.fill();
-  c.fillStyle='#344750';E(c,0,-1,r-2,(r-2)*.3);c.fill();
-  c.strokeStyle=hexA(col,.46);c.lineWidth=1.3;E(c,0,-1,r-3,(r-3)*.29);c.stroke();
-  c.strokeStyle='rgba(240,210,150,.32)';c.lineWidth=.8;
-  for(let i=0;i<8;i++){
-    const a=Math.PI*2*i/8;
-    const x=Math.cos(a)*(r-4),y=-1+Math.sin(a)*(r-4)*.29;
-    Ln(c,x-.7,y-.5,x+.7,y+.5);
-  }
-  if(tier>=3){
-    c.strokeStyle=hexA(col,.15+Math.sin(t*1.1)*.035);c.lineWidth=.9;
-    E(c,0,-1,r+3+Math.sin(t*1.4)*.8,(r+3)*.38);c.stroke();
-  }
-  c.restore();
-}
 function drawTowerShape(c,X,Y,k,tier,lvl,tc,fc,t,dead,seed=0){
   c.save();c.translate(X,Y);c.scale(k,k);
   if(dead){c.fillStyle='#4a4b47';for(let i=0;i<7;i++){C(c,Math.cos(i*1.7)*10,Math.sin(i*2.3)*4,2.5+(i%3));c.fill()}c.restore();return}
-  drawArcanePlinth(c,15+tier*.4,tc,t,tier);
   const M=TOWER_MAT[tier-1],h=32+tier*2.4+lvl*1.6;
   c.fillStyle='rgba(0,0,0,.35)';E(c,3,3,17,6.5);c.fill();
   c.fillStyle=M.d;E(c,0,0,15+tier*.4,6.5);c.fill();
@@ -1706,7 +1694,6 @@ function drawTowerShape(c,X,Y,k,tier,lvl,tc,fc,t,dead,seed=0){
 function drawBastionShape(c,X,Y,k,tier,tc,fc,t,dead,fury){
   c.save();c.translate(X,Y);c.scale(k,k);
   if(dead){c.fillStyle='#4a4b47';for(let i=0;i<9;i++){C(c,Math.cos(i*1.3)*14,Math.sin(i*2.1)*5,2.5+(i%3));c.fill()}c.restore();return}
-  drawArcanePlinth(c,24,tc,t,tier);
   c.fillStyle='rgba(0,0,0,.35)';E(c,3,3,26,9);c.fill();
   c.fillStyle='#4e5048';E(c,0,0,24,9);c.fill();c.fillStyle='#62645c';E(c,0,-2,20,7);c.fill();
   c.strokeStyle=hexA(tc,.5);c.lineWidth=1.2;E(c,0,-2,16,5.5);c.stroke();
@@ -1728,7 +1715,6 @@ function drawBastionShape(c,X,Y,k,tier,tc,fc,t,dead,fury){
 function drawNexusShape(c,X,Y,k,tier,tc,fc,t,dead){
   c.save();c.translate(X,Y);c.scale(k,k);
   if(dead){c.fillStyle='#4a4b47';for(let i=0;i<10;i++){C(c,Math.cos(i*1.3)*18,Math.sin(i*2.1)*7,3+(i%3));c.fill()}c.restore();return}
-  drawArcanePlinth(c,29,tc,t,tier);
   c.fillStyle='rgba(0,0,0,.35)';E(c,0,4,32,12);c.fill();
   c.fillStyle='#55574f';E(c,0,0,30,12);c.fill();c.fillStyle='#6a6c64';E(c,0,-4,24,9);c.fill();
   c.strokeStyle=hexA(tc,.6);c.lineWidth=1.5;E(c,0,-4,18,6.5);c.stroke();
@@ -2485,35 +2471,12 @@ function render(){
   if(VIEW.id==='tilt'){const sky=c.createLinearGradient(0,0,0,cv.height*.35);sky.addColorStop(0,'rgba(20,30,40,.55)');sky.addColorStop(1,'rgba(20,30,40,0)');c.fillStyle=sky;c.fillRect(0,0,cv.width,cv.height*.35)}
   const vg=c.createRadialGradient(cv.width/2,cv.height/2,Math.min(cv.width,cv.height)*.35,cv.width/2,cv.height/2,Math.max(cv.width,cv.height)*.72);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.5)');c.fillStyle=vg;c.fillRect(0,0,cv.width,cv.height);
 }
-/* Ground sigils remain beneath the art and never change hitboxes. */
-function drawChampionSigil(c,u,p,t,vs){
-  const selected=G.selHero===u.id,base=(u.look.size||1)*.7*vs;
-  const color=u.team===0?'#81e7f3':u.team===1?'#ff9b8a':'#eecf8b';
-  const rx=(selected?15:12)*base,ry=(selected?6:4.7)*base;
-  c.save();
-  c.strokeStyle=hexA(color,selected?.85:.38);
-  c.lineWidth=selected?1.7:1;
-  E(c,p.x,p.y,rx,ry);c.stroke();
-  if(selected){
-    c.strokeStyle='rgba(255,228,168,.75)';
-    c.lineWidth=1.1;
-    for(let i=0;i<4;i++){
-      const a=t*.75+i*Math.PI/2;
-      c.beginPath();
-      c.ellipse(p.x,p.y,rx+2.5,ry+1,0,a,a+.36);
-      c.stroke();
-    }
-    c.fillStyle='#ffe6b2';
-    c.beginPath();c.moveTo(p.x,p.y-13*base);c.lineTo(p.x-4*base,p.y-20*base);c.lineTo(p.x+4*base,p.y-20*base);c.closePath();c.fill();
-  }
-  c.restore();
-}
 function drawUnit(c,u,p,t){
   const L=u.look,a=u.atkT>0?1-u.atkT/.3:0,vs=viewScale(u.y)*u.scale;
   const sx=VIEW.m[0]*u.fvx+VIEW.m[2]*u.fvy;if(Math.abs(sx)>.12)u.dir=sx>0?1:-1;
   const fly=u.flying?(10+Math.sin(t*3+u.id)*2)*vs:0;
   if(u.kind==='hero'||u.boss){const gl=L.glow||'#ffffff',R=24*(L.size||1)*.7*vs;const g=c.createRadialGradient(p.x,p.y-12*vs,2,p.x,p.y-12*vs,R);g.addColorStop(0,hexA(gl,.28));g.addColorStop(1,hexA(gl,0));c.fillStyle=g;C(c,p.x,p.y-12*vs,R);c.fill()}
-  if(u.kind==='hero'||u.boss)drawChampionSigil(c,u,p,t,vs);
+  if(u.kind==='hero'&&G.selHero===u.id){c.strokeStyle=`rgba(255,255,255,${.5+Math.sin(t*5)*.3})`;c.lineWidth=1.4;E(c,p.x,p.y,12*(L.size||1)*.7,5*(L.size||1)*.7);c.stroke()}
   if(u.buffT>0||furyOn(u)){c.fillStyle='rgba(255,120,50,.16)';C(c,p.x,p.y-10*vs,11*vs);c.fill()}
   drawLook(c,L,p.x,p.y,u.dir,u.ph,a,u.moving,vs,fly);
   if(u.hitFlash>0){c.save();c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,255,255,.35)';const hh=lookHeight(L)*vs;C(c,p.x,p.y-hh*.5-fly,hh*.35);c.fill();c.restore()}
@@ -2552,11 +2515,11 @@ const btnCost=(c,sub,attrs='')=>`<button class="buy" ${attrs} ${c==null?'disable
 const laneSeg=(sel,act)=>`<div class="seg">${LANE_NAMES.map((n,i)=>`<button data-act="${act}" data-v="${i}" aria-pressed="${sel===i}">${n} ${kbd(i+1)}</button>`).join('')}</div>`;
 const lookKey=e=>`line:${e.line}:${e.form}`;
 const curTabs=()=>G.mode==='champ'?CTABS:GTABS;
-const ordLock=o=>`<button class="olk wide" data-act="ordunlock" data-v="${o}"><span class="lock"></span>Ordre « ${ORD[o].n} » · ${ORD[o].p} éclats</button>`;
+const ordLock=o=>`<button class="olk wide" data-act="ordunlock" data-v="${o}"><span class="lock"></span>${ORD[o].n} · avancé</button>`;
 const towerName=s=>s.tier===0?'Tour extérieure':s.tier===1?'Tour intérieure':'Tour de garde';
 const skPips=(n,max=SK_MAX)=>`<span class="skpips">${Array.from({length:max},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
 function skillRows(h){return h.skl.map((S,i)=>{const lk=h.lvl<S.unl;return`<div class="skrow ${lk?'lk':''}"><b class="k">${S.key}</b><div><div class="nm">${S.name} ${skPips(h.sk[i].rk)}${lk?` <span class="pill">niv. ${S.unl}</span>`:''}</div><div class="ds">${S.desc}</div></div></div>`}).join('')}
-function renderTabs(){const bt=G.bld?bldTabs(G.bld):null,ts=curTabs().filter(tb=>!bt||bt.includes(tb.id));$('tabs').classList.toggle('one',ts.length<2);$('tabs').innerHTML=ts.map(tb=>`<button data-t="${tb.id}" aria-selected="${G.tab===tb.id}">${isUnl('tab:'+tb.id)?'':'<span class="lock"></span>'}${tb.name} ${kbd(tb.key)}</button>`).join('')}
+function renderTabs(){const bt=G.bld?bldTabs(G.bld):null,ts=curTabs().filter(tb=>(!bt||bt.includes(tb.id))&&isUnl('tab:'+tb.id));$('tabs').classList.toggle('one',ts.length<2);$('tabs').innerHTML=ts.map(tb=>`<button data-t="${tb.id}" aria-selected="${G.tab===tb.id}">${isUnl('tab:'+tb.id)?'':'<span class="lock"></span>'}${tb.name} ${kbd(tb.key)}</button>`).join('')}
 function tabSig(){
   const T=G.teams[0];
   return G.tab+'|'+G.selLane+'|'+G.upAll+'|'+JSON.stringify(G.selEntry)+'|'+isUnl('tab:'+G.tab)+'|'
@@ -2589,7 +2552,7 @@ function renderTab(){
     const lkRow=(id,name,desc)=>`<div class="statl olkrow"><svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z"/></svg><div class="nm"><span class="lock"></span> ${name}</div><div class="ds">${desc}</div><button class="buy" data-act="bstunlock" data-v="${id}">${BST_P[id]}<small>éclats</small></button></div>`;
     let up=`<div class="lbl">Ordre des unités · ${LANE_NAMES[L]}</div>${ordOk('hold')?`<div class="seg"><button data-act="stance" data-v="push" aria-pressed="${T.stance[L]==='push'}">Charger</button><button data-act="stance" data-v="hold" aria-pressed="${T.stance[L]==='hold'}">Tenir la position</button></div>`:`<div class="seg"><button aria-pressed="true">Charger</button>${ordLock('hold').replace('olk wide','olk')}</div>`}`;
     up+=`<div class="lbl">Améliorations du bastion</div><div class="seg"><button data-act="upall" data-v="0" aria-pressed="${!G.upAll}">Ce bastion</button><button data-act="upall" data-v="1" aria-pressed="${G.upAll}">Les 3 bastions</button></div><div class="list">`;
-    up+=BSTATS.map(s=>{if(!isUnl('bst:'+s.id))return lkRow(s.id,s.name,s.desc+' · à débloquer une fois pour toutes');const c=G.upAll?upAllCost(T,s.id):upCost(T,L,s.id),v=T.upg[L][s.id]||0;
+    up+=BSTATS.map(s=>{if(!isUnl('bst:'+s.id))return lkRow(s.id,s.name,s.desc+' · paramètre avancé, à débloquer hors partie');const c=G.upAll?upAllCost(T,s.id):upCost(T,L,s.id),v=T.upg[L][s.id]||0;
       return`<div class="statl"><svg viewBox="0 0 24 24">${s.ico}</svg><div class="nm">${s.name} <span class="muted" style="font-weight:600">${s.desc}</span></div><div class="pips">${Array.from({length:s.max},(_,i)=>`<i class="${v>i?'on':''}"></i>`).join('')}</div>${btnCost(c,G.upAll?'×3':'niv. '+(v+1),`data-act="up" data-v="${s.id}"`)}</div>`}).join('');
     up+=isUnl('bst:reinf')?`<div class="statl"><svg viewBox="0 0 24 24"><path d="M8 20v-6M16 20v-6M12 20V9M5 9l7-6 7 6"/></svg><div class="nm">Renforts <span class="muted" style="font-weight:600">+1 guerrier par vague</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${T.reinf[L]>i?'on':''}"></i>`).join('')}</div>${btnCost(reinfCost(T,L),'+1',`data-act="reinf"`)}</div>`:lkRow('reinf','Renforts','+1 guerrier par vague');
     up+=isUnl('bst:fury')?`<div class="statl"><svg viewBox="0 0 24 24"><path d="M12 3c3 4 6 6 6 11a6 6 0 01-12 0c0-3 2-5 3-7 1 2 2 3 3 3 0-3-1-5 0-7z"/></svg><div class="nm">Rituel de fureur ${kbd('U')}</div><div class="ds">+75 % de dégâts et +30 % de cadence sur cette voie pendant 20 s</div>${btnCost(bs.dead?null:250,'',`data-act="fury" data-fury="1"`)}</div></div>`:lkRow('fury','Rituel de fureur','+75 % de dégâts sur la voie pendant 20 s')+'</div>';
@@ -2766,7 +2729,7 @@ function popAct(bt){
     case'fury':fury(0,l);break;
     case'tower':towerUp(0,s);break;
     case'repair':repair(0);break;
-    case'unlockdef':tryUnlock('tab:defenses','l’onglet Défenses',()=>{renderPop();renderTab()});return;
+    case'unlockdef':toast('Se débloque hors partie : page Forteresse');return;
   }
   renderPop();if(tabSig()!==G.sig)renderTab();
 }
@@ -2820,13 +2783,13 @@ function selectLane(l){if(G.selEntry&&G.selEntry.lane!==l)G.selEntry=null;G.selL
 function gameAct(a,v,bt){
   const T=G.teams[0],hero=()=>T.heroes.find(x=>x.id==v),fh=()=>T.heroes.find(x=>x.id===G.forgeHero);
   switch(a){
-    case'unlocktab':tryUnlock('tab:'+G.tab,'l’onglet '+ALLTABS.find(x=>x.id===G.tab).name,()=>renderTab());return;
+    case'unlocktab':toast('Se débloque hors partie');return;
     case'send':if(!sendMonsters(0,+v,G.selLane))toast('Pas assez d’or');break;
     case'asend':if(!isUnl('tab:send')){toast('Onglet Envoyer verrouillé');return}if(!arenaSend(0,+v,G.sendP||1))toast('Pas assez d’or');break;
     case'apal':G.sendP=+v;break;
     case'book':{const all=G.mode==='champ'&&!G.siege?T.heroes.filter(x=>x.manual):T.heroes;buyBook(all.find(x=>x.id===G.forgeHero)||all[0],v);break}
-    case'ordunlock':{const o=ORD[v];if(o.node&&!voieHas(o.node)){toast(`Ordre réservé à la Voie des héros (nœud « ${VOIES[0].nodes.find(n=>n.id===o.node).name} »)`);return}tryUnlock('ord:'+v,'l’ordre « '+o.n+' »',()=>renderTab());return}
-    case'bstunlock':if(!isUnl('scr:arsenal')){toast('Débloque d’abord l’écran Bastions (page Armée)');return}tryUnlock('bst:'+v,'l’amélioration '+(BSTATS.find(x=>x.id===v)||{name:v==='reinf'?'Renforts':'Rituel de fureur'}).name,()=>renderTab());return;
+    case'ordunlock':{const o=ORD[v];if(o.node&&!voieHas(o.node)){toast(`Ordre réservé à la Voie des héros (nœud « ${VOIES[0].nodes.find(n=>n.id===o.node).name} »)`);return}toast('Ordre à débloquer hors partie : Forteresse › Avancé');return}
+    case'bstunlock':toast('Amélioration à débloquer hors partie : Forteresse › Avancé');return;tryUnlock('bst:'+v,'l’amélioration '+(BSTATS.find(x=>x.id===v)||{name:v==='reinf'?'Renforts':'Rituel de fureur'}).name,()=>renderTab());return;
     case'stance':T.stance[G.selLane]=v;log(`${LANE_NAMES[G.selLane]} : ${v==='hold'?'les unités tiennent la position':'les unités chargent'}`,'a');break;
     case'tactic':{const h=hero();if(h){const m=bt.dataset.m;if(m==='roam')order(h,h.mode==='roam'?'push':'roam');else if(m==='hunt')h.hunt=!h.hunt;else h.u20=!h.u20;G.selHero=h.id}}break;
     case'build':if(!buildTower(0,+v))toast('Pas assez d’or');break;
@@ -2890,59 +2853,32 @@ cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);pinch=null});
 cv.addEventListener('wheel',e=>{e.preventDefault();if(G)G.camGoal=null;const s0=fitS()*cam.z,vx=(e.offsetX-CW/2)/s0+cam.x,vy=(e.offsetY-CH/2)/s0+cam.y;cam.z*=e.deltaY<0?1.15:1/1.15;clampCam();const s1=fitS()*cam.z;cam.x=vx-(e.offsetX-CW/2)/s1;cam.y=vy-(e.offsetY-CH/2)/s1;clampCam()},{passive:false});
 /* ---- bâtiments de la base : chaque menu s'ouvre depuis un bâtiment ---- */
 const BLD={
-  citadel:{name:'Citadelle',ico:'art/bld-citadel.svg',d:'Tes héros et leurs ordres'},
-  forge:{name:'Forge',ico:'art/bld-forge.svg',d:'Équipement des héros',tabs:['forge']},
-  biblio:{name:'Bibliothèque',ico:'art/bld-biblio.svg',d:'Livres de puissance pour tes héros',tabs:['books']},
-  caserne:{name:'Caserne',ico:'art/bld-caserne.svg',d:'Tes unités'},
-  atelier:{name:'Atelier',ico:'art/bld-atelier.svg',d:'Tours et bâtiments',tabs:['defenses']},
-  arcanes:{name:'Tour des arcanes',ico:'art/bld-arcanes.svg',d:'Sorts et chaos',tabs:['spells','chaos']},
+  citadel:{name:'Citadelle',ico:'ico-play.png',d:'Tes héros et leurs ordres'},
+  forge:{name:'Forge',ico:'ico-market.png',d:'Équipement des héros',tabs:['forge']},
+  biblio:{name:'Bibliothèque',ico:'ico-missions.png',d:'Livres de puissance pour tes héros',tabs:['books']},
+  caserne:{name:'Caserne',ico:'ico-army.png',d:'Tes unités'},
+  atelier:{name:'Atelier',ico:'ico-fort.png',d:'Tours et bâtiments',tabs:['defenses']},
+  arcanes:{name:'Tour des arcanes',ico:'ico-play.png',d:'Sorts et chaos',tabs:['spells','chaos']},
 };
-function bldTabs(id){if(id==='citadel')return[G.mode==='champ'?'champ':'heroes'];if(id==='caserne')return G.mode==='champ'?['send']:['bastions'];return BLD[id].tabs}
+function bldTabs(id){let r;if(id==='citadel')r=[G.mode==='champ'?'champ':(isUnl('tab:heroes')?'heroes':'bastions')];else if(id==='caserne')r=G.mode==='champ'?['send']:['bastions'];else r=BLD[id].tabs;return r.filter(t=>isUnl('tab:'+t))}
 function bldOfTab(tab){for(const b of G.blds||[])if(bldTabs(b.id).includes(tab))return b.id;return 'citadel'}
 const BLD_IMG={};function bldImg(f){let im=BLD_IMG[f];if(!im&&typeof Image!=='undefined'){im=new Image();im.src=f;BLD_IMG[f]=im}return im&&im.complete&&im.naturalWidth?im:null}
 function placeBuildings(){const b=BASE[0],L=(ids,angs,r)=>ids.map((id,i)=>({id,x:b.x+Math.cos(angs[i]*Math.PI/180)*r,y:b.y+Math.sin(angs[i]*Math.PI/180)*r,isBld:1}));
+  const keep=()=>{G.blds=G.blds.filter(b=>bldTabs(b.id).length)};
   if(G.siege)G.blds=L(['forge','biblio','caserne','atelier'],[-45,45,135,-135],92);
   else if(G.arena)G.blds=L(['forge','biblio','caserne','atelier'],[-100,-52,180,145],82);
-  else G.blds=L(['forge','biblio','caserne','atelier','arcanes'],[-67,-25,180,112,148],66)}
-/* In-game buildings use a tactile stone base and their own dedicated artwork. */
-function drawBld(c,b,p,t){
-  const k=viewScale(b.y)*(VIEW.id==='tilt'?1.1:1),B=BLD[b.id],open=G.bld===b.id;
-  const bob=Math.sin(t*1.8+b.x*.1)*1.25*k,accent=open?'#ffe19b':'#82cdd7';
-  c.save();c.translate(p.x,p.y);
-  c.fillStyle='rgba(0,0,0,.38)';E(c,2*k,3*k,20*k,8*k);c.fill();
-  c.fillStyle='#21333d';E(c,0,1.5*k,18*k,6.5*k);c.fill();
-  c.fillStyle='#6a6a65';E(c,0,-.5*k,16*k,5.5*k);c.fill();
-  c.fillStyle='#3c4c53';E(c,0,-1.8*k,14*k,4*k);c.fill();
-  c.strokeStyle=hexA(accent,open?.95:.54);c.lineWidth=(open?2:1)*k;
-  E(c,0,-1*k,14*k,4.5*k);c.stroke();
-  for(let i=0;i<4;i++){
-    const a=(i/4)*Math.PI*2+.4;
-    c.fillStyle=i%2?'#ddbb7a':'#90c5ca';
-    C(c,Math.cos(a)*13*k,-k+Math.sin(a)*4*k,1.2*k);c.fill();
-  }
-  const im=bldImg(B.ico),size=35*k,top=-size-6*k+bob;
-  if(im){
-    c.shadowColor=open?'rgba(255,205,122,.66)':'rgba(94,200,218,.28)';
-    c.shadowBlur=(open?13:6)*k;
-    c.drawImage(im,-size/2,top,size,size);
-    c.shadowBlur=0;c.shadowColor='transparent';
-  }else{
-    c.fillStyle='#152b39';RR(c,-size/2,top,size,size,7*k);c.fill();
-    c.strokeStyle='#d6b17a';c.lineWidth=1.5*k;
-    Ln(c,-7*k,top+size/2,7*k,top+size/2);
-  }
-  if(open){
-    const gl=c.createRadialGradient(0,-20*k,1,0,-20*k,28*k);
-    gl.addColorStop(0,'rgba(248,204,111,.22)');gl.addColorStop(1,'rgba(248,204,111,0)');
-    c.fillStyle=gl;C(c,0,-20*k,28*k);c.fill();
-    c.strokeStyle='rgba(255,217,144,.75)';c.lineWidth=1.25*k;
-    E(c,0,2*k,(20+Math.sin(t*3))*k,6*k);c.stroke();
-  }
-  c.restore();
-}
+  if(G.siege||G.arena){keep();return}
+  else G.blds=L(['forge','biblio','caserne','atelier','arcanes'],[-67,-25,180,112,148],66);keep()}
+function drawBld(c,b,p,t){const k=viewScale(b.y)*(VIEW.id==='tilt'?1.1:1),B=BLD[b.id],open=G.bld===b.id;
+  c.save();c.translate(p.x,p.y);c.fillStyle='rgba(0,0,0,.35)';E(c,0,2,17*k,6*k);c.fill();
+  const g=c.createLinearGradient(0,-8*k,0,4*k);g.addColorStop(0,'#8c8170');g.addColorStop(1,'#4a4237');c.fillStyle=g;E(c,0,0,15*k,5.5*k);c.fill();
+  c.strokeStyle=open?'#ffd77a':'rgba(232,180,74,.6)';c.lineWidth=open?2.2:1.2;E(c,0,0,15*k,5.5*k);c.stroke();
+  const im=bldImg(B.ico),bob=Math.sin(t*2+b.x)*1.2,s=30*k;if(im)c.drawImage(im,-s/2,-s-4*k+bob,s,s);
+  if(false){c.font=`800 ${Math.round(9*k)}px "Alegreya Sans",sans-serif`;c.textAlign='center';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.8)';c.strokeText(B.name,0,11*k);c.fillStyle='#f3e6c4';c.fillText(B.name,0,11*k)}
+  c.restore()}
 function bldAt(w){let best=null,bd=26;for(const b of G.blds||[]){const d=dist(b,w);if(d<bd){bd=d;best=b}}
   if(!best){const n=G.structs.find(s=>s.team===0&&s.type==='nexus'&&!s.dead);if(n&&dist(n,w)<n.r+10)return{id:'citadel'}}return best}
-function openBld(id,tab){G.bld=id;const tabs=bldTabs(id),B=BLD[id];G.tab=tab&&tabs.includes(tab)?tab:tabs[0];
+function openBld(id,tab){const tabs=bldTabs(id),B=BLD[id];if(!tabs.length){toast('Se débloque hors partie');return}G.bld=id;G.tab=tab&&tabs.includes(tab)?tab:tabs[0];
   $('ptitle').textContent=B.name;$('pdesc').textContent=B.d;$('pico').src=B.ico;$('panel').classList.toggle('open',true);$('tabbody').scrollTop=0;renderTabs();renderTab()}
 function closeBld(){G.bld=null;$('panel').classList.toggle('open',false)}
 const BOOKS=[{k:'f',n:'Livre de force',d:'+8 attaque',c:110},{k:'v',n:'Livre de vitalité',d:'+100 PV',c:110},{k:'a',n:'Livre de l’armure',d:'+5 armure',c:120},{k:'c',n:'Livre de célérité',d:'+6 % de vitesse d’attaque',c:140},{k:'x',n:'Grand livre d’expérience',d:'+1 niveau (max 12)',c:260}];
@@ -3039,36 +2975,6 @@ function paintKey(cv,key,t=1.2){
   const pw=Math.round(W*d),phh=Math.round(H*d);if(cv.width!==pw||cv.height!==phh){cv.width=pw;cv.height=phh}
   const c=cv.getContext('2d');c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,pw,phh);c.drawImage(off,0,0);
 }
-/* Illustrated portrait stage behind existing hand-painted sprites and procedural heroes. */
-function drawPortraitScene(c,W,H,L){
-  const raw=L.glow||L.aura||L.trim||L.col||L.body||'#88c9d2';
-  const col=/^#[0-9a-fA-F]{6}$/.test(raw)?raw:'#88c9d2';
-  const radius=Math.max(W,H)*.8,g=c.createRadialGradient(W*.53,H*.37,0,W*.5,H*.55,radius);
-  g.addColorStop(0,hexA(col,.29));
-  g.addColorStop(.44,hexA(col,.10));
-  g.addColorStop(1,'rgba(7,19,30,0)');
-  c.fillStyle=g;c.fillRect(0,0,W,H);
-  const fade=c.createLinearGradient(0,H*.55,0,H);
-  fade.addColorStop(0,'rgba(9,23,32,0)');
-  fade.addColorStop(1,'rgba(3,11,18,.46)');
-  c.fillStyle=fade;c.fillRect(0,H*.55,W,H*.45);
-  if(W>=60&&H>=60){
-    const R=Math.min(W*.36,H*.36),cy=H*.48;
-    c.save();c.globalAlpha=.52;c.strokeStyle=hexA(col,.36);c.lineWidth=Math.max(.65,W*.006);
-    C(c,W*.5,cy,R);c.stroke();
-    C(c,W*.5,cy,R*.88);c.stroke();
-    for(let i=0;i<8;i++){
-      const a=i*Math.PI/4,cs=Math.cos(a),sn=Math.sin(a);
-      Ln(c,W*.5+cs*R*.90,cy+sn*R*.90,W*.5+cs*R*1.08,cy+sn*R*1.08);
-    }
-    c.restore();
-    c.fillStyle=hexA(col,.55);
-    for(let i=0;i<5;i++){
-      const x=W*(.15+((i*17)%8)/12),y=H*(.19+((i*7)%9)/13);
-      C(c,x,y,Math.max(.6,Math.min(W,H)*.009));c.fill();
-    }
-  }
-}
 function paintKeyRaw(cv,key,t,W,H){
   const d=Math.min(2,window.devicePixelRatio||1);
   if(cv.width!==Math.round(W*d)||cv.height!==Math.round(H*d)){cv.width=Math.round(W*d);cv.height=Math.round(H*d)}
@@ -3088,7 +2994,6 @@ function paintKeyRaw(cv,key,t,W,H){
     for(const[L,fx,fy]of items){const sc=Math.min(1.9,(H*.55)/lookHeight(L))*(L===hero?1.05:.8);drawLook(c,L,W*fx,H*fy,fx>.6?-1:1,t*(L===hero?1:1.3)+fx*3,0,t!==1.2,sc,L.plan==='floater'?8*sc:0)}
     return}
   let L=null;if(kind==='line')L=formLook(a,+b);else if(kind==='look')L=LOOKS[a];if(!L)return;
-  drawPortraitScene(c,W,H,L);
   const LS=L.spr&&sprImg(L.spr)?{...L,size:L.sprBase}:L;const hgt=lookHeight(LS)+(L.plan==='floater'?8:0)+(L.wings||L.wingsBig?6:0);const sc=LS!==L?Math.min(H*1.08,W*1.05)/(54*(L.sprBase||1)):Math.min((H*.74)/hgt,(W*.7)/(26*(LS.size||1)*.82));
   if(L.aura){c.fillStyle=hexA(L.aura,.25);E(c,W/2,H*.88,W*.32,H*.09);c.fill()}
   c.fillStyle='rgba(0,0,0,.35)';E(c,W/2,H*.88,W*.26,H*.06);c.fill();
@@ -3147,11 +3052,11 @@ const PAGES={
  market:{name:'Marché',tabs:['boosters','market']},
  army:{name:'Armée',tabs:['deck','arsenal','collection','heroes','codex']},
  play:{name:'Jouer'},
- fort:{name:'Forteresse',tabs:['fortress','talents']},
+ fort:{name:'Forteresse',tabs:['fortress','talents','avance']},
  missions:{name:'Missions',tabs:['m_daily','m_weekly','m_ach']},
 };
-const TABNAME={boosters:'Boosters',market:'Offres & change',deck:'Deck',arsenal:'Bastions',collection:'Collection',heroes:'Héros',codex:'Codex',fortress:'Structures',talents:'Talents',m_daily:'Du jour',m_weekly:'De la semaine',m_ach:'Succès'};
-const SCR2PAGE={boosters:'market',market:'market',deck:'army',arsenal:'army',collection:'army',heroes:'army',codex:'army',fortress:'fort',talents:'fort'};
+const TABNAME={boosters:'Boosters',market:'Offres & change',deck:'Deck',arsenal:'Bastions',collection:'Collection',heroes:'Héros',codex:'Codex',fortress:'Structures',talents:'Talents',avance:'Avancé',m_daily:'Du jour',m_weekly:'De la semaine',m_ach:'Succès'};
+const SCR2PAGE={boosters:'market',market:'market',deck:'army',arsenal:'army',collection:'army',heroes:'army',codex:'army',fortress:'fort',talents:'fort',avance:'fort'};
 const ICO={
  market:'<path d="M4 8h16l-1.5 11a2 2 0 01-2 1.7H7.5a2 2 0 01-2-1.7z"/><path d="M8.5 8V6.5a3.5 3.5 0 017 0V8"/>',
  army:'<path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 11l2 2 4-4"/>',
@@ -3258,10 +3163,10 @@ function topHud(){
   </div></header>`;
 }
 function bottomNav(){
-  const nc=claimable(),it=(id,lbl,extra='')=>{const u=isUnl('page:'+id);return`<button data-page="${id}" ${curScr===id?'aria-current="page"':''} class="${id==='play'?'play':''} ${u?'':'plk'}">${id==='play'?`<span class="orb img"><img src="art/nav-play.svg" alt=""></span>`:`<img class="ni" src="art/nav-${id}.svg" alt="">`}<span>${u?lbl:'<span class="lock"></span> '+lbl}</span>${u?extra:''}</button>`};
+  const nc=claimable(),it=(id,lbl,extra='')=>{const u=isUnl('page:'+id);return`<button data-page="${id}" ${curScr===id?'aria-current="page"':''} class="${id==='play'?'play':''} ${u?'':'plk'}">${id==='play'?`<span class="orb img"><img src="ico-play.png" alt=""></span>`:`<img class="ni" src="ico-${id}.png" alt="">`}<span>${u?lbl:'<span class="lock"></span> '+lbl}</span>${u?extra:''}</button>`};
   return`<nav class="bnav"><div class="bin">${it('market','Marché')}${it('army','Armée')}${it('play','Jouer')}${it('fort','Forteresse')}${it('missions','Missions',nc?'<i class="dot"></i>':'')}</div></nav>`;
 }
-const SCREEN_FN={deck:()=>deckScreen(),boosters:()=>boosterScreen(),arsenal:()=>arsenalScreen(),market:()=>marketScreen(),collection:()=>collectionScreen(),heroes:()=>heroesScreen(),codex:()=>codexScreen(),fortress:()=>fortressScreen(),talents:()=>talentsScreen()};
+const SCREEN_FN={deck:()=>deckScreen(),boosters:()=>boosterScreen(),arsenal:()=>arsenalScreen(),market:()=>marketScreen(),collection:()=>collectionScreen(),heroes:()=>heroesScreen(),codex:()=>codexScreen(),fortress:()=>fortressScreen(),talents:()=>talentsScreen(),avance:()=>advancedScreen()};
 function pageView(pg){
   if(pg==='play')return isUnl('page:play')?playScreen():pvWrap('page:play','la page Jouer','Les mondes, les modes de jeu et le lancement des batailles. Tout est visible, rien n’est utilisable avant le déblocage.',withForce(['page:play'],playScreen));
   if(pg==='settings')return`<div class="ph2"><h2>Réglages</h2></div>`+(isUnl('page:settings')?controlsScreen():pvWrap('page:settings','les réglages','Raccourcis clavier et aide.',withForce(['page:settings'],controlsScreen)));
@@ -3457,6 +3362,15 @@ function voiesBlock(){
         <div class="${u&&on?'':'pv'}" ${u&&on?'':'inert'} style="display:flex;flex-direction:column;gap:10px">${v.nodes.map((n,i)=>{const own=!!meta.nodes[n.id],av=i===0||meta.nodes[v.nodes[i-1].id];
           return`<button class="node ${own?'on':''}" data-node="${n.id}" data-c="${n.cost}" ${own||!av||meta.pts<n.cost||!on?'disabled':''}><b>${n.name}</b><small>${n.desc}</small><span class="c">${own?'Acquis':n.cost+' pt'}</span></button>`}).join('')}</div></div>`}).join('')}</div></div>`;
 }
+/* Paramètres avancés : tout ce qu'aucune page n'inclut, à débloquer hors partie, une fois pour toutes */
+function advancedScreen(){const F=FI[meta.start]||0;
+  const row=(k,name,desc,extra)=>{const u=isUnl(k);return`<div class="frame adv"><div><b>${name}</b><small>${desc}</small></div>${extra||(u?'<span class="ok">Acquis</span>':`<button class="btn" data-unlock="${k}" data-label="${name}">${priceOf(k)} éclats</button>`)}</div>`};
+  const ords=Object.entries(ORD).filter(([id,o])=>!o.node&&o.p>0),vo=Object.entries(ORD).filter(([id,o])=>o.node);
+  return topbar('Paramètres avancés')+`<p class="lead">Ce qu’aucune page n’inclut. On le débloque ici, hors partie, une fois pour toutes : en bataille, il n’y a jamais rien à acheter.</p>
+  <div class="sect"><h3>Ordres des héros</h3></div><div class="advl">${ords.map(([id,o])=>row('ord:'+id,o.n,id==='hold'?'Les unités d’une voie gardent leur position':'Ordre donné à un héros en bataille')).join('')}
+    ${vo.map(([id,o])=>row('ord:'+id,o.n,'Ordre de la Voie des héros',voieHas(o.node)?'<span class="ok">Inclus</span>':'<span class="muted">Voie des héros</span>')).join('')}</div>
+  <div class="sect"><h3>Améliorations des unités</h3></div>${isUnl('scr:arsenal')?'':'<p class="muted">Utilisables en bataille une fois la page Armée débloquée (Bastions).</p>'}<div class="advl">${BSTATS.map(b=>row('bst:'+b.id,b.name,b.desc+' par rang')).join('')}${row('bst:reinf','Renforts','+1 créature par vague sur une voie')}${row('bst:fury','Rituel de fureur','Tes bastions déchaînent leurs créatures')}</div>
+  <div class="sect"><h3>Arts de compétence</h3></div><p class="muted">À placer dans les emplacements supplémentaires de tes héros.</p><div class="advl">${ARTS.filter(a=>a!=='strike').map(a=>row('art:'+a,SKN[a][F],'Compétence en plus pour tous tes héros')).join('')}</div>`}
 function talentsScreen(){
   return topbar('Talents')+voiesBlock()+`<div class="sect"><h3>Arbres généraux</h3></div><p class="lead">Chaque arbre est une orientation : il se débloque une fois avec des éclats, puis ses nœuds s’achètent avec les points de talent gagnés en bataille.</p><div class="trees">${TREES.map(tr=>{const k='sub:tal:'+tr.id;
     if(!isUnl(k))return`<div class="frame tree" style="--tc:${tr.col}"><h3>${tr.name}</h3><p class="muted">${tr.sub}</p><div class="pv" inert style="display:flex;flex-direction:column;gap:10px">${tr.nodes.map(n=>`<button class="node"><b>${n.name}</b><small>${n.desc}</small><span class="c">${n.cost} pt</span></button>`).join('')}</div><button class="lockb" data-unlock="${k}" data-label="l’arbre ${tr.name}"><span class="lock"></span>Débloquer · ${priceOf(k)} éclats</button></div>`;
