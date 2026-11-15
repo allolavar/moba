@@ -1,3 +1,7 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07121a">
 <title>Trois Voies</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -514,6 +518,7 @@ button.hcard:hover{border-color:var(--rc)}
 #tabs button{flex:1 0 auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<link rel="stylesheet" href="lobby.css?v=1">
 
 <canvas id="menuBg" aria-hidden="true"></canvas>
 <section id="meta" class="screen"></section>
@@ -3070,12 +3075,12 @@ const ICO={
  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.4 4.4l2.1 2.1M17.5 17.5l2.1 2.1M2.5 12h3M18.5 12h3M4.4 19.6l2.1-2.1M17.5 6.5l2.1-2.1"/>',
 };
 const svg=k=>`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;
-let curScr='play';const sub={};
+let curScr='home';const sub={};
 /* ---- historique de navigation (bouton Retour) ---- */
 const NAV=[];let navLast=null,navSkip=false;
 const navState=()=>({scr:curScr,tab:sub['p_'+curScr]||(PAGES[curScr]&&PAGES[curScr].tabs?PAGES[curScr].tabs[0]:null),top:($('meta')||{}).scrollTop||0});
 const navKey=st=>st.scr+'|'+(st.tab||'');
-function navLabel(st){const P=PAGES[st.scr];const pn=st.scr==='settings'?'Réglages':P?(P.name||P.title||st.scr):st.scr;const tn=st.tab&&TABNAME[st.tab];return tn&&P&&P.tabs&&P.tabs.length>1?pn+' · '+tn:pn}
+function navLabel(st){const P=PAGES[st.scr];const pn=st.scr==='home'?'Accueil':st.scr==='settings'?'Réglages':P?(P.name||P.title||st.scr):st.scr;const tn=st.tab&&TABNAME[st.tab];return tn&&P&&P.tabs&&P.tabs.length>1?pn+' · '+tn:pn}
 function navTrack(){if(!meta||!meta.start||curScr==='end'){navLast=null;return}const st=navState();
   if(navSkip){navSkip=false;navLast=st;return}
   if(navLast&&navKey(navLast)!==navKey(st)){NAV.push(navLast);if(NAV.length>40)NAV.shift()}navLast=st}
@@ -3083,7 +3088,7 @@ function navBack(){if(!$('modal').hidden){closeModal();return true}const st=NAV.
   curScr=st.scr;if(st.tab)sub['p_'+st.scr]=st.tab;navSkip=true;renderMeta();const m=$('meta');if(m)m.scrollTop=st.top;return true}
 const BACK_ICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 function backBar(){const st=NAV[NAV.length-1];if(!st)return'';return`<div class="backbar"><button class="backbtn" data-back="1" aria-label="Retour">${BACK_ICO}Retour</button><small>${navLabel(st)}</small></div>`}
-function go(scr){if(scr==='hub')scr='play';if(SCR2PAGE[scr]){sub['p_'+SCR2PAGE[scr]]=scr;scr=SCR2PAGE[scr]}if(scr==='controls')scr='settings';curScr=scr;renderMeta();$('meta').scrollTop=0}
+function go(scr){if(scr==='hub')scr='home';if(SCR2PAGE[scr]){sub['p_'+SCR2PAGE[scr]]=scr;scr=SCR2PAGE[scr]}if(scr==='controls')scr='settings';curScr=scr;renderMeta();$('meta').scrollTop=0}
 
 /* ---- suivi : vie entière, jour, semaine ---- */
 const weekKey=()=>String(Math.floor((Date.now()/864e5+3)/7));
@@ -3163,7 +3168,7 @@ function topHud(){
   </div></header>`;
 }
 function bottomNav(){
-  const nc=claimable(),it=(id,lbl,extra='')=>{const u=isUnl('page:'+id);return`<button data-page="${id}" ${curScr===id?'aria-current="page"':''} class="${id==='play'?'play':''} ${u?'':'plk'}">${id==='play'?`<span class="orb img"><img src="ico-play.png" alt=""></span>`:`<img class="ni" src="ico-${id}.png" alt="">`}<span>${u?lbl:'<span class="lock"></span> '+lbl}</span>${u?extra:''}</button>`};
+  const nc=claimable(),it=(id,lbl,extra='')=>{const u=isUnl('page:'+id);return`<button data-page="${id}" ${curScr===id||(curScr==='home'&&id==='play')?'aria-current="page"':''} class="${id==='play'?'play':''} ${u?'':'plk'}">${id==='play'?`<span class="orb img"><img src="${curScr==='home'?'art/nav-play.svg':'ico-play.png'}" alt=""></span>`:`<img class="ni" src="${curScr==='home'?'art/nav-'+id+'.svg':'ico-'+id+'.png'}" alt="">`}<span>${u?lbl:'<span class="lock"></span> '+lbl}</span>${u?extra:''}</button>`};
   return`<nav class="bnav"><div class="bin">${it('market','Marché')}${it('army','Armée')}${it('play','Jouer')}${it('fort','Forteresse')}${it('missions','Missions',nc?'<i class="dot"></i>':'')}</div></nav>`;
 }
 const SCREEN_FN={deck:()=>deckScreen(),boosters:()=>boosterScreen(),arsenal:()=>arsenalScreen(),market:()=>marketScreen(),collection:()=>collectionScreen(),heroes:()=>heroesScreen(),codex:()=>codexScreen(),fortress:()=>fortressScreen(),talents:()=>talentsScreen(),avance:()=>advancedScreen()};
@@ -3226,9 +3231,83 @@ function playScreen(){
   <div class="sect"><div class="sh"><h3>Modes de jeu</h3><span class="muted">3 disponibles · les autres arrivent</span></div><div class="wcar modes">${MODES.map(m=>`<div class="mode ${m.on?'on':''}"><canvas data-look="${m.art}"></canvas><div><b>${m.n}</b><small>${m.d}</small><span class="pill ${m.on?'all':''}">${m.on?'Disponible':'Bientôt'}</span></div></div>`).join('')}</div></div>
   <div class="sect"><div class="sh"><h3>Ta faction</h3><span class="muted">${Object.keys(meta.facs).length}/5 · prochaine : niveau ${facLvlNeed()} et ${FAC_PRICE} éclats</span></div><div class="facs">${facs}</div></div>`;
 }
+
+/* Écran d'accueil mobile : composition originale, aucun mode supprimé. */
+function lobbyScreen(){
+  if(!Number.isInteger(+sel.w)||+sel.w<0||+sel.w>=WORLDS.length||!worldOpen(+sel.w))sel.w=0;
+  const W=WORLDS[sel.w],F=FACTIONS[W.fac];
+  const lv=meta.alvl||1,xp=meta.xp||0;
+  const own=HEROES[HERO_IDS.find(h=>HEROES[h].fac===meta.deck.banner)];
+  const unlocked=WORLDS.filter((_,i)=>worldOpen(i)).length;
+  const progress=100*unlocked/WORLDS.length;
+  const mode=sel.mode==='siege'?'Siège':sel.mode==='champ'?'Champions 2 contre 2':'Campagne';
+  const win=meta.prog[W.id]&&meta.prog[W.id].normal;
+  const opponent=F.name;
+  const stageLabel='Monde '+(sel.w+1)+' sur '+WORLDS.length;
+  const difficulty=DIFF[sel.d]?DIFF[sel.d].name:'Normal';
+  return `<main class="tv-lobby" aria-label="Accueil de Trois Voies">
+    <header class="tv-lobby-header">
+      <button class="tv-lobby-player" data-profile="1" aria-label="Ouvrir le profil du commandant">
+        <canvas data-look="look:${own.look}"></canvas>
+        <span class="tv-player-data"><span class="tv-name">${FACTIONS[meta.deck.banner].name}</span>
+        <span class="tv-level">COMMANDANT · NIVEAU ${lv}</span>
+        <span class="tv-xp" aria-hidden="true"><span style="width:${Math.min(100,xp/accNeed(lv)*100)}%"></span></span></span>
+      </button>
+      <div class="tv-lobby-tools">
+        <button data-gift="1" aria-label="Cadeau du jour">${svg('gift')}</button>
+        <button data-page="settings" aria-label="Réglages">${svg('gear')}</button>
+      </div>
+      <div class="tv-lobby-coins">${curPills()}</div>
+    </header>
+    <div class="tv-lobby-brand">
+      <img src="logo.webp" alt="Trois Voies" draggable="false">
+      <span class="tv-tagline">Conquiers les trois voies</span>
+    </div>
+    <section class="tv-hero-world" aria-label="Monde sélectionné">
+      <div class="tv-world-title">
+        <span class="tv-world-crown" aria-hidden="true">♛</span>
+        <span class="tv-world-index">MONDE ${String(sel.w+1).padStart(2,'0')} · ${difficulty.toUpperCase()}</span>
+        <strong>${W.name}</strong>
+        <span class="tv-world-enemy">Face à ${opponent}</span>
+      </div>
+      <div class="tv-art-stage">
+        <button class="tv-world-arrow previous" data-car="-1" ${sel.w===0?'disabled':''} aria-label="Monde précédent">‹</button>
+        <img class="tv-island-img" src="art/lobby-island.svg" alt="Île flottante fantasy avec trois voies, forteresses rivales et jungle" draggable="false">
+        <span class="tv-stage-particle p1" aria-hidden="true"></span><span class="tv-stage-particle p2" aria-hidden="true"></span><span class="tv-stage-particle p3" aria-hidden="true"></span>
+        <span class="tv-team-marker ally"><i class="dot"></i> ALLIÉS</span>
+        <span class="tv-team-marker enemy"><i class="dot"></i> ENNEMIS</span>
+        <button class="tv-world-arrow next" data-car="1" ${sel.w>=WORLDS.length-1||!worldOpen(sel.w+1)?'disabled':''} aria-label="Monde suivant">›</button>
+      </div>
+      <div class="tv-lobby-progress" aria-label="${stageLabel}">
+        <div class="tv-progress-head">
+          <span>${win?'✦ Monde vaincu':'✦ Conquête en cours'}</span><span>${unlocked} / ${WORLDS.length} MONDES</span>
+        </div>
+        <div class="tv-progress-track" aria-hidden="true"><span style="width:${progress.toFixed(1)}%"></span></div>
+      </div>
+    </section>
+    <div class="tv-mode-line">${mode} · ${difficulty}</div>
+    <nav class="tv-lobby-shortcuts" aria-label="Raccourcis">
+      <button class="tv-shortcut" data-page="army"><span class="tv-shortcut-icon"><img src="art/nav-army.svg" alt=""></span>Mes héros</button>
+      <button class="tv-shortcut" data-page="play"><span class="tv-shortcut-icon"><img src="art/nav-play.svg" alt=""></span>Modes</button>
+      <button class="tv-shortcut" data-page="missions"><span class="tv-shortcut-icon"><img src="art/nav-missions.svg" alt=""></span>Missions</button>
+    </nav>
+    <div class="tv-lobby-combat-wrap">
+      <button class="tv-lobby-combat" data-lobby-fight="1" aria-label="Lancer le combat">⚔ COMBAT<small>${mode} · ${W.name}</small></button>
+      <button class="tv-lobby-config" data-page="play">Changer de monde, de mode ou de difficulté</button>
+    </div>
+  </main>`;
+}
 function renderMeta(){
   const m=$('meta');
-  if(!meta||!meta.start){m.innerHTML=startScreen();paintAll(m);return}
+  if(!meta||!meta.start){m.classList.remove('tv-lobby-active');m.innerHTML=startScreen();paintAll(m);return}
+  if(curScr==='home'){
+    m.classList.add('tv-lobby-active');
+    navTrack();
+    m.innerHTML=lobbyScreen()+bottomNav();
+    paintAll(m);m.scrollTop=0;fsLabels();
+    return;
+  }
+  m.classList.remove('tv-lobby-active');
   let h,chrome=true;
   if(curScr==='end'){h=endScreen();chrome=false}
   else{if(!PAGES[curScr]&&curScr!=='settings')curScr='play';h=pageView(curScr)}
@@ -3445,7 +3524,14 @@ function endScreen(){
 
 $('meta').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
-  if(d.start){meta=freshMeta(d.start);saveMeta();curScr='play';renderMeta();toast('Bienvenue, commandant');return}
+  if(d.start){meta=freshMeta(d.start);saveMeta();curScr='home';renderMeta();toast('Bienvenue, commandant');return}
+  if(d.lobbyFight){
+    const champ=sel.mode==='champ'||sel.mode==='siege';
+    if((champ&&champReady())||(!champ&&!meta.deck.lines.length)){
+      curScr='play';renderMeta();$('meta').scrollTop=0;
+    }else launch();
+    return;
+  }
   if(d.back){navBack();return}
   if(d.page){if(d.ptabset)sub['p_'+d.page]=d.ptabset;curScr=d.page;renderMeta();$('meta').scrollTop=0;return}
   if(d.ptab){const[pg,id]=d.ptab.split(':');sub['p_'+pg]=id;renderMeta();return}
