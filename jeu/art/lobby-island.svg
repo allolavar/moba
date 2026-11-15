@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 620" role="img" aria-label="Île d'arène fantasy de Trois Voies">
+<defs>
+ <radialGradient id="aura"><stop stop-color="#5addff" stop-opacity=".36"/><stop offset=".5" stop-color="#145f9b" stop-opacity=".12"/><stop offset="1" stop-color="#102853" stop-opacity="0"/></radialGradient>
+ <radialGradient id="abyss"><stop stop-color="#1a9fd0" stop-opacity=".35"/><stop offset="1" stop-color="#031326" stop-opacity="0"/></radialGradient>
+ <linearGradient id="cliff" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#637780"/><stop offset=".32" stop-color="#344e56"/><stop offset=".68" stop-color="#223e4b"/><stop offset="1" stop-color="#10232c"/></linearGradient>
+ <linearGradient id="cliffL" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#83908c"/><stop offset=".5" stop-color="#384d53"/><stop offset="1" stop-color="#182e3a"/></linearGradient>
+ <linearGradient id="grass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7a9f79"/><stop offset=".3" stop-color="#456e58"/><stop offset=".72" stop-color="#31594a"/><stop offset="1" stop-color="#29493d"/></linearGradient>
+ <linearGradient id="paving" x1=".1" y1=".1" x2=".9" y2="1"><stop stop-color="#aaa994"/><stop offset=".52" stop-color="#788888"/><stop offset="1" stop-color="#506f6f"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fff1bb"/><stop offset=".4" stop-color="#dfb467"/><stop offset="1" stop-color="#a46b39"/></linearGradient>
+ <linearGradient id="blueTower" x1=".2" y1="0" x2="1" y2="1"><stop stop-color="#cbd5ce"/><stop offset=".5" stop-color="#6e8c9d"/><stop offset="1" stop-color="#3b5869"/></linearGradient>
+ <linearGradient id="redTower" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#e2b5a0"/><stop offset=".5" stop-color="#8e6872"/><stop offset="1" stop-color="#472e46"/></linearGradient>
+ <linearGradient id="blueFire" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fbffff"/><stop offset=".35" stop-color="#84f5ff"/><stop offset=".8" stop-color="#2695ce"/><stop offset="1" stop-color="#1758b1"/></linearGradient>
+ <linearGradient id="redFire" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff4c4"/><stop offset=".42" stop-color="#ff9d82"/><stop offset="1" stop-color="#ad325d"/></linearGradient>
+ <linearGradient id="lanes" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d0bd94"/><stop offset=".5" stop-color="#8a9081"/><stop offset="1" stop-color="#6d8679"/></linearGradient>
+ <radialGradient id="star"><stop stop-color="#fffefa"/><stop offset=".3" stop-color="#8ee9ff" stop-opacity=".8"/><stop offset="1" stop-color="#6dc8ff" stop-opacity="0"/></radialGradient>
+ <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="16"/></filter>
+ <filter id="spark" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="4"/></filter>
+ <clipPath id="topMask"><path d="M92 291Q115 272 155 254L301 165Q330 145 355 162L593 284Q625 301 599 327L388 449Q354 467 329 449L106 340Q77 322 92 291Z"/></clipPath>
+ <g id="fir">
+  <ellipse cx="6" cy="3" rx="20" ry="7" fill="#091e1b" opacity=".34"/>
+  <path d="M1 -3V-38" stroke="#674a36" stroke-width="8" stroke-linecap="round"/>
+  <path d="M1 -87L-28 -31Q-3 -38 1 -36Q16 -38 28 -30Z" fill="#164b48" stroke="#225b54" stroke-width="2"/>
+  <path d="M1 -68L-24 -20Q-1 -28 1 -24Q12 -27 24 -19Z" fill="#236b59" stroke="#1b4e4c" stroke-width="2"/>
+  <path d="M1 -49L-22 -8Q0 -14 1 -13Q14 -16 23 -7Z" fill="#31775f" stroke="#246151" stroke-width="2"/>
+  <path d="M1 -80L-9 -50L1 -53L11 -50Z" fill="#5ba084" opacity=".55"/>
+ </g>
+ <g id="rock">
+  <path d="M0 -12L19 -20L33 -6L24 7L5 9L-5 1Z" fill="#758786" stroke="#aeb8a4" stroke-width="2"/>
+  <path d="M19 -20L24 7L33 -6Z" fill="#415b65"/>
+  <path d="M0 -12L5 9L24 7L19 -20Z" fill="#9b9f91" opacity=".6"/>
+ </g>
+ <g id="shrub"><ellipse rx="16" ry="7" fill="#21472c"/><path d="M-13 0Q-9 -20 0 -10Q10 -22 15 0Z" fill="#4a9c58"/><path d="M-8 -4Q1 -17 6 -6" fill="none" stroke="#97bd71" stroke-width="2"/></g>
+ <g id="sparkle"><path d="M0 -13L3 -3L13 0L3 3L0 13L-3 3L-13 0L-3 -3Z" fill="#bcefff"/></g>
+</defs>
+<!-- atmospheric magical gate behind island -->
+<ellipse cx="352" cy="302" rx="300" ry="231" fill="url(#aura)"/>
+<circle cx="352" cy="278" r="218" fill="none" stroke="#58a5d3" stroke-width="2" stroke-opacity=".18" stroke-dasharray="3 17"/>
+<circle cx="352" cy="278" r="190" fill="none" stroke="#7bc9f0" stroke-width="2" stroke-opacity=".15"/>
+<path d="M352 75V107M352 451V479M149 277H181M523 277H557" stroke="#b6e3ee" stroke-opacity=".3" stroke-width="2"/>
+<ellipse cx="355" cy="492" rx="228" ry="30" fill="#030b19" opacity=".53" filter="url(#shadow)"/>
+<!-- floating rock body -->
+<path d="M91 296L340 413Q357 433 388 418L601 295L598 357L547 401L513 453L451 475L404 523L364 544L325 526L270 493L212 468L163 411L107 379Z" fill="url(#cliff)" stroke="#a0a48f" stroke-width="3"/>
+<path d="M91 296L340 413L362 538L334 508L301 471L278 489L234 444L213 460L165 399L137 403L107 379Z" fill="url(#cliffL)" opacity=".88"/>
+<path d="M601 295L388 418L365 539L409 497L430 510L451 475L491 465L513 430L549 413L598 357Z" fill="#284654"/>
+<path d="M121 363L171 392L186 424L207 425L230 459L258 466L289 504L300 465L319 486L343 497L355 536" fill="none" stroke="#a1a8a1" stroke-opacity=".3" stroke-width="4"/>
+<path d="M600 354L565 381L543 385L512 431L484 448L455 450L423 493L404 490" fill="none" stroke="#7e9ca5" stroke-opacity=".48" stroke-width="5"/>
+<path d="M132 368L148 393L152 365L173 400M243 449L259 471L266 440M393 431L386 493M500 417L484 463" fill="none" stroke="#091e31" stroke-opacity=".47" stroke-width="6"/>
+<!-- thin luminous waterfall -->
+<path d="M548 343Q544 388 536 405L518 450L500 473Q509 451 510 425L529 382L534 346Z" fill="url(#blueFire)" opacity=".68"/>
+<path d="M539 349Q533 390 526 424L507 467" fill="none" stroke="#e4ffff" stroke-opacity=".62" stroke-width="4"/>
+<!-- top playable world -->
+<path d="M92 291Q115 272 155 254L301 165Q330 145 355 162L593 284Q625 301 599 327L388 449Q354 467 329 449L106 340Q77 322 92 291Z" fill="url(#grass)" stroke="#c3b58b" stroke-width="5"/>
+<g clip-path="url(#topMask)">
+ <!-- stone contour and natural variations -->
+ <path d="M115 296L329 178L576 293L365 435Z" fill="none" stroke="#a3b787" stroke-opacity=".38" stroke-width="6"/>
+ <path d="M102 341Q215 332 267 386Q350 415 416 396Q490 380 573 319" fill="none" stroke="#284e4c" stroke-width="46" opacity=".35"/>
+ <path d="M107 292L334 164L591 296L375 440Z" fill="none" stroke="#bac19c" stroke-opacity=".09" stroke-width="14"/>
+ <!-- three winding lanes, visibly separated, team paths -->
+ <path d="M155 302Q196 274 239 236Q288 203 325 201Q400 216 465 254L544 297" fill="none" stroke="#536e5e" stroke-width="31" stroke-linecap="round"/>
+ <path d="M155 302Q196 274 239 236Q288 203 325 201Q400 216 465 254L544 297" fill="none" stroke="url(#lanes)" stroke-width="21" stroke-linecap="round"/>
+ <path d="M153 327Q257 300 345 301Q446 301 545 297" fill="none" stroke="#536f66" stroke-width="34" stroke-linecap="round"/>
+ <path d="M153 327Q257 300 345 301Q446 301 545 297" fill="none" stroke="url(#lanes)" stroke-width="23" stroke-linecap="round"/>
+ <path d="M157 352Q235 386 317 402Q393 423 456 375Q507 341 544 301" fill="none" stroke="#516f64" stroke-width="31" stroke-linecap="round"/>
+ <path d="M157 352Q235 386 317 402Q393 423 456 375Q507 341 544 301" fill="none" stroke="url(#lanes)" stroke-width="21" stroke-linecap="round"/>
+ <!-- faint broken paving slabs on paths -->
+ <g fill="none" stroke="#eef1d9" stroke-opacity=".18" stroke-width="3">
+  <path d="M204 264L215 273M259 222L269 233M351 207L343 225M424 234L414 250M487 260L479 275"/>
+  <path d="M208 304L216 322M272 293L279 309M340 287L345 314M405 291L414 312M471 293L480 313"/>
+  <path d="M200 369L207 387M275 393L272 410M343 403L339 426M431 384L445 396M494 338L508 351"/>
+ </g>
+ <!-- magical middle river with stone bridge crossing central lane -->
+ <path d="M329 178Q309 228 336 280Q360 321 343 359Q328 393 354 453" fill="none" stroke="#124d62" stroke-width="30" opacity=".7"/>
+ <path d="M329 178Q309 228 336 280Q360 321 343 359Q328 393 354 453" fill="none" stroke="#64b2cb" stroke-width="17" opacity=".58"/>
+ <path d="M328 181Q316 227 342 280Q356 318 347 350" fill="none" stroke="#c1fbff" stroke-width="5" opacity=".55"/>
+ <path d="M313 289L366 290L383 310L330 312Z" fill="#c4b696" stroke="#778b87" stroke-width="4"/>
+ <path d="M320 291L333 312M338 290L350 312M356 292L365 309" stroke="#81918c" stroke-width="2"/>
+ <!-- shrubs -->
+ <use href="#shrub" transform="translate(207 252) scale(.9)"/>
+ <use href="#shrub" transform="translate(448 229) scale(.7)"/>
+ <use href="#shrub" transform="translate(277 366) scale(.62)"/>
+ <use href="#shrub" transform="translate(493 335) scale(.8)"/>
+ <use href="#shrub" transform="translate(230 352) scale(.8)"/>
+ <use href="#shrub" transform="translate(425 371) scale(.75)"/>
+</g>
+<!-- trees are drawn above board, at the outer jungle edges -->
+<use href="#fir" transform="translate(153 277) scale(1.15)"/>
+<use href="#fir" transform="translate(218 228) scale(1.03)"/>
+<use href="#fir" transform="translate(280 192) scale(.95)"/>
+<use href="#fir" transform="translate(383 204) scale(.92)"/>
+<use href="#fir" transform="translate(504 280) scale(.95)"/>
+<use href="#fir" transform="translate(544 322) scale(.88)"/>
+<use href="#fir" transform="translate(460 375) scale(1.02)"/>
+<use href="#fir" transform="translate(389 411) scale(.78)"/>
+<use href="#fir" transform="translate(272 388) scale(.91)"/>
+<use href="#fir" transform="translate(129 325) scale(.9)"/>
+<use href="#rock" transform="translate(219 377) scale(.7)"/>
+<use href="#rock" transform="translate(447 260) scale(.7)"/>
+<use href="#rock" transform="translate(407 387) scale(.6)"/>
+<!-- allied fort on bottom left -->
+<g transform="translate(191 321)">
+ <ellipse cy="12" rx="56" ry="23" fill="#0e2737" opacity=".43"/>
+ <path d="M-47 6L0 -20L47 6L5 33Z" fill="#536d7b" stroke="#b0c9bd" stroke-width="3"/>
+ <path d="M-39 5V-36L-22 -44L-3 -37V10L-21 20Z" fill="url(#blueTower)" stroke="#d0d4c6" stroke-width="3"/>
+ <path d="M-22 -44L-2 -36L-21 -28L-40 -36Z" fill="#b3c5c0"/>
+ <path d="M7 6V-40L26 -50L43 -39V7L26 18Z" fill="url(#blueTower)" stroke="#bdc7bf" stroke-width="3"/>
+ <path d="M26 -50L44 -39L25 -31L7 -40Z" fill="#ccded9"/>
+ <path d="M-50 -36L-21 -70L-1 -35L-22 -26Z" fill="#2d6d95" stroke="#a9d8e8" stroke-width="3"/>
+ <path d="M5 -39L26 -83L47 -38L26 -27Z" fill="#246398" stroke="#a8e8ff" stroke-width="3"/>
+ <path d="M-31 -8L-20 -17L-10 -10V8L-20 14L-31 8Z" fill="#103048" stroke="#a7cfdf" stroke-width="2"/>
+ <path d="M16 -12L26 -22L36 -11V9L26 14L16 8Z" fill="#103049" stroke="#a9d9e3" stroke-width="2"/>
+ <path d="M-4 -1L15 -13L29 0L10 12Z" fill="#85cae9" opacity=".85"/>
+ <path d="M1 -29L10 -48L21 -32L13 -15Z" fill="url(#blueFire)" stroke="#e3fdff" stroke-width="2.5"/>
+ <path d="M-45 -32V-87M-43 -85L-12 -77L-44 -66Z" fill="#2caacc" stroke="#e5f7ee" stroke-width="2"/>
+ <path d="M-44 -85L-44 -65" stroke="#cceaf2" stroke-width="3"/>
+</g>
+<!-- enemy fortress on top right -->
+<g transform="translate(501 269)">
+ <ellipse cy="14" rx="53" ry="22" fill="#130e28" opacity=".38"/>
+ <path d="M-50 9L0 -16L47 8L4 30Z" fill="#7f6575" stroke="#bca59d" stroke-width="3"/>
+ <path d="M-38 6V-40L-19 -51L-1 -41V10L-20 20Z" fill="url(#redTower)" stroke="#c9aaa1" stroke-width="3"/>
+ <path d="M5 9V-47L25 -59L41 -45V10L25 18Z" fill="url(#redTower)" stroke="#dcc1b1" stroke-width="3"/>
+ <path d="M-48 -38L-19 -79L5 -39L-20 -27Z" fill="#6a304c" stroke="#eba9a1" stroke-width="3"/>
+ <path d="M2 -46L24 -93L46 -44L25 -29Z" fill="#74294a" stroke="#ffb49b" stroke-width="3"/>
+ <path d="M-29 -10L-19 -18L-9 -9V10L-19 15L-29 8Z" fill="#271b37" stroke="#e7afa2" stroke-width="2"/>
+ <path d="M16 -18L25 -27L34 -17V8L25 14L16 9Z" fill="#271a32" stroke="#efba9f" stroke-width="2"/>
+ <path d="M-6 -36L4 -58L15 -34L4 -17Z" fill="url(#redFire)" stroke="#fff2d4" stroke-width="2.5"/>
+ <path d="M41 -47V-106M42 -104L70 -93L42 -81Z" fill="#b9405b" stroke="#f7b49e" stroke-width="2"/>
+</g>
+<!-- rune above center -->
+<g transform="translate(347 287)" fill="none">
+ <ellipse rx="35" ry="14" stroke="#f0d295" stroke-opacity=".5" stroke-width="3"/>
+ <ellipse rx="22" ry="9" stroke="#7fdaed" stroke-opacity=".7" stroke-width="2"/>
+ <path d="M0 -31L16 -5L0 19L-16 -5Z" fill="url(#blueFire)" stroke="#ecffff" stroke-width="2"/>
+ <path d="M0 -25V15M-10 -5H10" stroke="#fffde7" stroke-width="2" opacity=".7"/>
+</g>
+<!-- miniature warriors on the center lane -->
+<g transform="translate(270 316)">
+ <ellipse cy="5" rx="11" ry="4.2" fill="#0a2737" opacity=".6"/>
+ <path d="M-8 -7L0 -18L8 -7L5 4H-5Z" fill="#4c8eb8" stroke="#c8edff" stroke-width="2"/>
+ <path d="M0 -17L0 -28L-8 -15L8 -15Z" fill="#cae5e7"/>
+ <path d="M7 -9L18 -21" stroke="#d9d5ad" stroke-width="3"/>
+</g>
+<g transform="translate(421 305)">
+ <ellipse cy="5" rx="11" ry="4.2" fill="#261527" opacity=".54"/>
+ <path d="M-8 -8L0 -20L8 -8L5 4H-5Z" fill="#a6516d" stroke="#ffbba7" stroke-width="2"/>
+ <path d="M0 -20L0 -33L-7 -18L8 -18Z" fill="#e7cab0"/>
+ <path d="M-7 -8L-18 -19" stroke="#e3c5a9" stroke-width="3"/>
+</g>
+<!-- foreground carved crystals and magic dust -->
+<path d="M304 452L315 479L337 492L326 468Z" fill="#496b6c" stroke="#bed3bd" stroke-opacity=".35" stroke-width="2"/>
+<path d="M377 452L366 484L380 502L389 470Z" fill="#1e758a" stroke="#e2f0e9" stroke-opacity=".5" stroke-width="2"/>
+<circle cx="160" cy="210" r="35" fill="url(#star)" opacity=".72"/><circle cx="557" cy="196" r="28" fill="url(#star)" opacity=".54"/>
+<use href="#sparkle" transform="translate(160 210) scale(.52)" opacity=".8"/>
+<use href="#sparkle" transform="translate(557 196) scale(.45)" opacity=".75"/>
+<use href="#sparkle" transform="translate(270 127) scale(.42)" opacity=".65"/>
+<use href="#sparkle" transform="translate(463 119) scale(.35)" opacity=".55"/>
+<g fill="#c6f7ff" opacity=".75"><circle cx="96" cy="202" r="2.7"/><circle cx="615" cy="227" r="2.7"/><circle cx="565" cy="434" r="2.2"/><circle cx="212" cy="468" r="2.2"/><circle cx="420" cy="143" r="3"/></g>
+</svg>
